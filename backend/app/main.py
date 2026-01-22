@@ -4,6 +4,9 @@ import certifi
 # Fix for SSL certificate verify failed on Mac
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base

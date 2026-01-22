@@ -228,7 +228,7 @@ const LiveKitWidgetSticky = () => {
         ) : (token && sessionStatus === "active") ? (
           <LiveKitRoom
             key="livekit-room"
-            serverUrl={import.meta.env.VITE_LIVEKIT_URL || "wss://ecommerce-xaanlrl1.livekit.cloud"}
+            serverUrl={import.meta.env.VITE_LIVEKIT_URL}
             token={token}
             connect={true}
             audio={!isMuted}
