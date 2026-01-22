@@ -1,0 +1,90 @@
+#################################
+# General
+#################################
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.swo
+.env
+.env.*
+!.env.example
+
+#################################
+# Python / FastAPI
+#################################
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+#################################
+# FastAPI / Uvicorn
+#################################
+uvicorn.log
+gunicorn.log
+
+#################################
+# Node / React
+#################################
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+#################################
+# React build output
+#################################
+build/
+dist/
+
+#################################
+# Next.js (if ever added)
+#################################
+.next/
+out/
+
+#################################
+# Vite
+#################################
+.vite/
+
+#################################
+# IDEs / Editors
+#################################
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+#################################
+# OS-specific
+#################################
+.DS_Store
+.AppleDouble
+.LSOverride
+ehthumbs.db
+Desktop.ini
+
+#################################
+# Docker
+#################################
+*.pid
+docker-compose.override.yml

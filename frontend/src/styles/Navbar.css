@@ -1,0 +1,189 @@
+/* Google Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+:root {
+  --accent-color: #ff4d4d;
+  --nav-height: 90px;
+  --nav-scrolled-height: 70px;
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  background: transparent; 
+  font-family: 'Inter', sans-serif;
+  transition: var(--transition);
+  padding: 0 5%;
+}
+
+/* This class triggers on Scroll OR on /products route */
+.navbar.scrolled {
+  background: rgba(255, 255, 255, 0.95); /* Increased opacity for better visibility */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  height: var(--nav-scrolled-height);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.navbar-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --- LOGO STYLING --- */
+.navbar-logo {
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: -1.5px;
+  text-decoration: none;
+  color: #ffffff; 
+  display: flex;
+  align-items: baseline;
+  transition: var(--transition);
+}
+
+.logo-light {
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: 2px;
+}
+
+.logo-dot {
+  width: 7px;
+  height: 7px;
+  background-color: var(--accent-color);
+  border-radius: 50%;
+  margin-left: 4px;
+  box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+}
+
+/* Dark logo when background is white */
+.navbar.scrolled .navbar-logo {
+  color: #000000 !important;
+}
+.navbar.scrolled .logo-light {
+  color: #666 !important;
+}
+
+/* --- NAV LINKS --- */
+.nav-menu {
+  display: flex;
+  gap: 45px;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  transition: var(--transition);
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--accent-color);
+  transition: var(--transition);
+  transform: translateX(-50%);
+}
+
+.nav-item:hover {
+  color: #ffffff;
+}
+
+.nav-item:hover::after {
+  width: 100%;
+}
+
+/* Dark text for links on white background */
+.navbar.scrolled .nav-item {
+  color: #333 !important;
+}
+.navbar.scrolled .nav-item:hover {
+  color: var(--accent-color) !important;
+}
+
+/* --- ACTIONS (Icons) --- */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.icon-btn:hover {
+  transform: translateY(-2px);
+  color: var(--accent-color);
+}
+
+.navbar.scrolled .icon-btn {
+  color: #000 !important;
+}
+
+/* --- CART BADGE --- */
+.cart-wrapper {
+  position: relative;
+  color: #ffffff;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.navbar.scrolled .cart-wrapper {
+  color: #000 !important;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: var(--accent-color);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid #1a1a2e; /* Matches your dark theme bg */
+}
+
+.navbar.scrolled .cart-badge {
+  border: 2px solid #fff; /* White ring when on white background */
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+  .nav-menu {
+    display: none;
+  }
+}
