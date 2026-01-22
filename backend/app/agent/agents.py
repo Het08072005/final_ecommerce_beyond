@@ -129,9 +129,10 @@ async def end_session_gracefully(agent: Assistant, silent=False):
     try:
         # 🔥 GLOBAL BROADCAST via FastAPI (Reliable cross-process signal)
         try:
+            internal_url = os.getenv("INTERNAL_API_URL", "http://127.0.0.1:8000")
             async with httpx.AsyncClient() as client:
-                await client.post("http://127.0.0.1:8000/broadcast", json={"type": "END_SESSION"})
-            print("Global END_SESSION signal sent via FastAPI broadcast.")
+                await client.post(f"{internal_url}/broadcast", json={"type": "END_SESSION"})
+            print(f"Global END_SESSION signal sent via {internal_url}/broadcast")
         except Exception as e:
             print(f"Global broadcast call failed: {e}")
 

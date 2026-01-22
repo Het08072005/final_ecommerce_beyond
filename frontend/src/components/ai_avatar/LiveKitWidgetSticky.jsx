@@ -7,6 +7,13 @@ import AvatarVoiceAgent from "./AvatarVoiceAgent";
 import api from "../../api/axios.js";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// 🔒 HARD BLOCK: SSR / Insecure Context Guard
+if (typeof window !== "undefined") {
+  if (!window.isSecureContext && window.location.hostname !== "localhost") {
+    console.error("❌ HTTPS is REQUIRED for LiveKit/Media access in production.");
+  }
+}
+
 // Inner component to handle room events
 const RoomDataListener = ({ navigate, location, onEndCall }) => {
   const room = useRoomContext();
@@ -56,7 +63,8 @@ const LiveKitWidgetSticky = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [hasManuallyClosed, setHasManuallyClosed] = useState(false);
-  const [sessionStatus, setSessionStatus] = useState("idle"); // idle, connecting, active, ended
+  const [sessionStatus, setSessionStatus] = useState("idle"); // idle, connecting, active, ended, no-media
+  const [mediaError, setMediaError] = useState(null);
   const tokenRequestedRef = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -68,15 +76,32 @@ const LiveKitWidgetSticky = () => {
 
     tokenRequestedRef.current = true;
     setSessionStatus("connecting");
+
     try {
+      // 🛑 ABSOLUTE GUARD: Check for Secure Context & Media Support
+      if (typeof window !== "undefined" && !window.isSecureContext && window.location.hostname !== "localhost") {
+        throw new Error("Insecure context: HTTPS is required.");
+      }
+
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        throw new Error("Media devices not supported in this browser.");
+      }
+
+      // 🔥 STEP 1: FORCE MEDIA PERMISSION (Request audio early)
+      console.log("🎤 Requesting microphone permission...");
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // 🔥 STEP 2: FETCH TOKEN ONLY AFTER MEDIA READY
       const name = `user_${Date.now()}`;
       const res = await api.get("/getToken", { params: { name } });
+
       setToken(res.data);
       setSessionStatus("active");
     } catch (err) {
-      console.error("❌ Token generation failed:", err);
+      console.error("❌ SESSION START FAILED:", err);
+      setSessionStatus("no-media");
+      setMediaError(err.message || "Microphone access requires HTTPS and user permission.");
       tokenRequestedRef.current = false;
-      setSessionStatus("idle");
     }
   }, [token]);
 
@@ -176,20 +201,34 @@ const LiveKitWidgetSticky = () => {
           </div>
         )}
 
-        {sessionStatus === "connecting" ? (
+        {sessionStatus === "no-media" ? (
+          <div className="flex flex-col items-center justify-center p-6 text-center">
+            <ShieldCheck size={40} className="text-red-500 mb-4" />
+            <p className="text-sm font-medium text-white mb-2">Security Restriction</p>
+            <p className="text-[11px] text-zinc-500 leading-relaxed">
+              {mediaError || "Voice interaction requires an HTTPS connection for security."}
+            </p>
+            <button
+              onClick={() => {
+                setSessionStatus("idle");
+                setIsOpen(false);
+              }}
+              className="mt-6 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-full text-[10px] uppercase tracking-wider transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        ) : sessionStatus === "connecting" ? (
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
             <p className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] animate-pulse">
               Connecting AI...
             </p>
           </div>
-        ) : !token ? (
-          /* Fallback if somehow token is null but not connecting/ended */
-          <div />
-        ) : (
+        ) : (token && sessionStatus === "active") ? (
           <LiveKitRoom
-            key={sessionStatus === "active" ? "active-room" : "ended-room"}
-            serverUrl="wss://ecommerce-xaanlrl1.livekit.cloud"
+            key="livekit-room"
+            serverUrl={import.meta.env.VITE_LIVEKIT_URL || "wss://ecommerce-xaanlrl1.livekit.cloud"}
             token={token}
             connect={true}
             audio={!isMuted}
@@ -208,7 +247,7 @@ const LiveKitWidgetSticky = () => {
               onEndCall={handleEndCall}
             />
           </LiveKitRoom>
-        )}
+        ) : null}
       </div>
 
       <div className="py-2.5 bg-black/90 flex items-center justify-center gap-2 border-t border-white/5">

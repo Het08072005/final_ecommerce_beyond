@@ -20,9 +20,12 @@ try:
 except Exception as e:
     print(f"⚠️ Database initialization warning: {e}")
 
+# Configure CORS
+origins = os.getenv("ALLOW_ORIGINS", "*").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for dev
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
