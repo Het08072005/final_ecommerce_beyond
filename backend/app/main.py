@@ -4,6 +4,9 @@ import certifi
 # Fix for SSL certificate verify failed on Mac
 os.environ["SSL_CERT_FILE"] = certifi.where()
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
@@ -20,9 +23,12 @@ try:
 except Exception as e:
     print(f"⚠️ Database initialization warning: {e}")
 
+# Configure CORS
+origins = os.getenv("ALLOW_ORIGINS", "*").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for dev
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

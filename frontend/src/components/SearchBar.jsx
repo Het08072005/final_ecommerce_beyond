@@ -107,8 +107,8 @@ const SearchBar = ({ value, onSearch, onChange }) => {
     if (!searchTerm.trim()) return;
 
     onSearch(searchTerm);
-
-    const ws = new WebSocket('ws://localhost:8000/ws');
+    const wsUrl = import.meta.env.VITE_WS_URL;
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       ws.send(

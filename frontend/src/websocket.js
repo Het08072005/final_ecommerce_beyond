@@ -7,7 +7,8 @@ export const connectWebSocket = (onMessage) => {
   }
 
   console.log("Connecting WebSocket...");
-  socket = new WebSocket("ws://127.0.0.1:8000/ws");
+  const wsUrl = import.meta.env.VITE_WS_URL;
+  socket = new WebSocket(wsUrl);
 
   socket.onopen = () => {
     console.log("WebSocket Connected");
