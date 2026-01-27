@@ -93,14 +93,32 @@ const LiveKitWidgetSticky = () => {
 
       // 🔥 STEP 2: FETCH TOKEN ONLY AFTER MEDIA READY
       const name = `user_${Date.now()}`;
-      const res = await api.get("/getToken", { params: { name } });
+      console.log("Fetching token for", name);
+      const res = await api.get("/getToken", {
+        params: { name },
+        timeout: 10000 // 10s timeout
+      });
+
+      if (!res.data || typeof res.data !== 'string') {
+        throw new Error("Invalid token received from server.");
+      }
 
       setToken(res.data);
       setSessionStatus("active");
     } catch (err) {
       console.error("❌ SESSION START FAILED:", err);
       setSessionStatus("no-media");
-      setMediaError(err.message || "Microphone access requires HTTPS and user permission.");
+
+      let friendlyMessage = "Microphone access failed.";
+      if (err.message?.includes("Insecure context")) {
+        friendlyMessage = "Security Restriction: HTTPS is required for AI voice.";
+      } else if (err.message?.includes("permission")) {
+        friendlyMessage = "Microphone permission denied. Please allow access and refresh.";
+      } else if (err.code === 'ECONNABORTED') {
+        friendlyMessage = "Server timeout. Please check if the backend is running.";
+      }
+
+      setMediaError(friendlyMessage);
       tokenRequestedRef.current = false;
     }
   }, [token]);
@@ -111,9 +129,12 @@ const LiveKitWidgetSticky = () => {
 
     // Auto-start ONLY on home page AND only if we haven't manually closed it yet
     if (isHomePage && !token && !tokenRequestedRef.current && !hasManuallyClosed) {
-      console.log("🤖 Auto-starting AI on Home Page...");
-      setIsOpen(true);
-      startSession(false);
+      const timer = setTimeout(() => {
+        console.log("🤖 Auto-starting AI on Home Page (Delayed for LCP)...");
+        setIsOpen(true);
+        startSession(false);
+      }, 800); // Give 800ms for the page to paint properly
+      return () => clearTimeout(timer);
     }
     // If we've moved away from home and no session is active, hide it (Manual Mode)
     else if (!isHomePage && !token) {
@@ -231,8 +252,12 @@ const LiveKitWidgetSticky = () => {
             serverUrl={import.meta.env.VITE_LIVEKIT_URL}
             token={token}
             connect={true}
-            audio={!isMuted}
+            audio={true}
             onDisconnected={handleEndCall}
+            onMediaDeviceError={(e) => {
+              console.error("LiveKit Media Error:", e);
+              setMediaError("Audio output blocked by browser. Click anywhere to enable.");
+            }}
             className="w-full h-full relative"
           >
             <RoomAudioRenderer />

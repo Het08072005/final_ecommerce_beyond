@@ -115,7 +115,8 @@ import { BrowserRouter, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import AppRoutes from "./routes/AppRoutes";
-import LiveKitWidgetSticky from "./components/ai_avatar/LiveKitWidgetSticky";
+
+const LiveKitWidgetSticky = React.lazy(() => import("./components/ai_avatar/LiveKitWidgetSticky"));
 
 import { connectWebSocket, disconnectWebSocket } from "./websocket";
 
@@ -155,7 +156,9 @@ function AppContent() {
       <Footer />
 
       {/* 🔥 Sticky LiveKit Widget – always mounted */}
-      <LiveKitWidgetSticky />
+      <React.Suspense fallback={null}>
+        <LiveKitWidgetSticky />
+      </React.Suspense>
     </div>
   );
 }

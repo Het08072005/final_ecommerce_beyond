@@ -15,7 +15,7 @@ const RoomDataListener = ({ navigate, location, onEndCall }) => {
     if (!room) return;
 
     const handleDisconnected = (reason) => {
-      console.log("LiveKit Room Disconnected:", reason);
+      console.log("LiveKit Room Disconnected:", reason);  
       onEndCall();
     };
 
